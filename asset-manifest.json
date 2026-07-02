@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/PackVault/static/css/main.e6c13ad2.css",
+    "main.js": "/PackVault/static/js/main.223bc753.js",
+    "static/js/453.20359781.chunk.js": "/PackVault/static/js/453.20359781.chunk.js",
+    "index.html": "/PackVault/index.html",
+    "main.e6c13ad2.css.map": "/PackVault/static/css/main.e6c13ad2.css.map",
+    "main.223bc753.js.map": "/PackVault/static/js/main.223bc753.js.map",
+    "453.20359781.chunk.js.map": "/PackVault/static/js/453.20359781.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.223bc753.js"
+  ]
+}
