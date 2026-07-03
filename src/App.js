@@ -27,6 +27,13 @@ function App() {
     fetchPackages();
   };
 
+  const deletePackage = async (name) => {
+    await fetch(`http://localhost:5000/api/packages/${name}`, {
+      method: 'DELETE',
+    });
+    fetchPackages();
+  };
+
   return (
     <div className="App">
       <h1>PackVault Dashboard</h1>
@@ -44,14 +51,18 @@ function App() {
             <th>Name</th>
             <th>Version</th>
             <th>Path</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {packages.map(pkg => (
-            <tr key={pkg.id}>
+          {packages.map((pkg, index) => (
+            <tr key={index}>
               <td>{pkg.name}</td>
               <td>{pkg.version}</td>
               <td>{pkg.path}</td>
+              <td>
+                <button onClick={() => deletePackage(pkg.name)}>Delete</button>
+              </td>
             </tr>
           ))}
         </tbody>

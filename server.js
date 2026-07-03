@@ -1,63 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const app = express();
 
-function App() {
-  const [packages, setPackages] = useState([]);
-  const [formData, setFormData] = useState({ name: '', version: '', path: '' });
+app.use(cors());
+app.use(express.json());
 
-  const fetchPackages = () => {
-    fetch('http://localhost:5000/api/packages')
-      .then(res => res.json())
-      .then(data => setPackages(data))
-      .catch(err => console.error("Error fetching packages:", err));
-  };
+// Corrected URI line
+const uri = "mongodb+srv://sa7028894_db_user:V9xEXfFkBML4J6YL@cluster0.oqb3bgh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
-  useEffect(() => {
-    fetchPackages();
-  }, []);
+mongoose.connect(uri)
+    .then(() => console.log("Connected to MongoDB Atlas"))
+    .catch(err => console.error("Could not connect to MongoDB", err));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await fetch('http://localhost:5000/api/packages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    });
-    setFormData({ name: '', version: '', path: '' });
-    fetchPackages();
-  };
+// Define the Package Schema
+const packageSchema = new mongoose.Schema({
+    name: String,
+    version: String,
+    path: String
+});
 
-  return (
-    <div className="App">
-      <h1>PackVault Dashboard</h1>
-      
-      <form onSubmit={handleSubmit}>
-        <input placeholder="Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
-        <input placeholder="Version" value={formData.version} onChange={e => setFormData({...formData, version: e.target.value})} required />
-        <input placeholder="Path" value={formData.path} onChange={e => setFormData({...formData, path: e.target.value})} required />
-        <button type="submit">Add Package</button>
-      </form>
+const Package = mongoose.model('Package', packageSchema);
 
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Path</th>
-          </tr>
-        </thead>
-        <tbody>
-          {packages.map(pkg => (
-            <tr key={pkg.id}>
-              <td>{pkg.name}</td>
-              <td>{pkg.version}</td>
-              <td>{pkg.path}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+// GET all packages
+app.get('/api/packages', async (req, res) => {
+    const packages = await Package.find();
+    res.json(packages);
+});
 
-export default App;
+// POST a new package
+app.post('/api/packages', async (req, res) => {
+    const newPackage = new Package(req.body);
+    await newPackage.save();
+    res.status(201).json(newPackage);
+});
+
+// DELETE a package
+app.delete('/api/packages/:name', async (req, res) => {
+    await Package.findOneAndDelete({ name: req.params.name });
+    res.status(200).json({ message: 'Package deleted' });
+});
+
+app.listen(5000, () => {
+    console.log('Server is running on port 5000 with MongoDB');
+});
