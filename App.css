@@ -1,0 +1,54 @@
+/* Modern, Bold Dashboard Styling */
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #0f172a; /* Deep dark background */
+  color: #f8fafc;
+}
+
+.App {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 900; /* Extra bold */
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem;
+}
+
+table {
+  width: 100%;
+  max-width: 900px;
+  border-collapse: collapse;
+  background: #1e293b; /* Card background */
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+th {
+  background-color: #334155;
+  color: #e2e8f0;
+  padding: 20px;
+  text-align: left;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+td {
+  padding: 18px;
+  border-top: 1px solid #334155;
+  color: #cbd5e1;
+}
+
+tr:hover {
+  background-color: #334155;
+  cursor: pointer;
+}
