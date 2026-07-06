@@ -1,33 +1,37 @@
-# Random Joke Generator
+# Backend README
 
-This adds a simple Random Joke Generator to the PackVault Next.js backend branch.
+This backend scaffold adds Prisma, basic JWT auth endpoints, package metadata endpoints, and helpers for S3 and Redis.
 
-What was added
+Setup (local)
 
-- backend/app/api/joke/route.ts — server API route that proxies a random joke from https://icanhazdadjoke.com/.
-- backend/app/joke/page.tsx — a minimal Next.js page that calls the API and displays a random joke.
-- backend/package.json, backend/next.config.js, backend/tsconfig.json — minimal Next app setup files.
+1. Copy the example env and fill values:
 
-How to run locally
+   cp .env.example .env
 
-1. From the repository root, install dependencies:
+2. Install dependencies:
 
    cd backend
    npm install
 
-2. Start the dev server:
+3. Generate Prisma client and run migrations:
+
+   npx prisma generate
+   npx prisma migrate dev --name init
+
+4. Seed admin user:
+
+   npm run prisma:seed
+
+5. Start dev server:
 
    npm run dev
 
-3. Open http://localhost:3000/joke to view the Random Joke Generator.
+Key endpoints
 
-Notes
+- POST /api/auth/register  — body: { email, username, password }
+- POST /api/auth/login     — body: { email, password }
+- GET  /api/auth/me        — header: Authorization: Bearer <token>
+- GET  /api/packages       — list packages
+- POST /api/packages       — create package metadata (requires Bearer token)
+- GET  /api/packages?name=packname — get package detail
 
-- The API route fetches jokes from icanhazdadjoke.com using the Accept: application/json header.
-- No rate-limiting or caching beyond Next's `revalidate` option is implemented yet; for production add caching (Redis) or rate limits.
-
-Next steps (optional)
-
-- Add server-side caching (Redis) to avoid hitting the external API on every request.
-- Add a client-side UI improvement and styling.
-- Add tests for the API route.

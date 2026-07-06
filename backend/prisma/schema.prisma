@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  username    String   @unique
+  password    String
+  role        String   @default("user")
+  createdAt   DateTime @default(now())
+  packages    Package[]
+}
+
+model Package {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  ownerId     Int
+  owner       User     @relation(fields: [ownerId], references: [id])
+  versions    PackageVersion[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PackageVersion {
+  id          Int      @id @default(autoincrement())
+  packageId   Int
+  package     Package  @relation(fields: [packageId], references: [id])
+  version     String
+  blobKey     String
+  checksum    String?
+  size        Int?
+  publishedBy Int?
+  publishedAt DateTime?
+}
+
+model AccessToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  scopes    String
+  expiresAt DateTime?
+}
+
+model DownloadStat {
+  id               Int      @id @default(autoincrement())
+  packageVersionId Int
+  packageVersion   PackageVersion @relation(fields: [packageVersionId], references: [id])
+  timestamp        DateTime @default(now())
+  ip               String?
+  userAgent        String?
+}
