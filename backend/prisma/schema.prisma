@@ -38,6 +38,7 @@ model PackageVersion {
   size        Int?
   publishedBy Int?
   publishedAt DateTime?
+  isPublic    Boolean  @default(false)
 }
 
 model AccessToken {

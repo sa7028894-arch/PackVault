@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyToken } from '../../lib/jwt';
 import { prisma } from '../../lib/prisma';
-import { createPresignedDownload } from '../../lib/s3';
+import { createPresignedDownload, verifyObjectChecksum } from '../../lib/s3';
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     if (!payload) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
 
     const body = await request.json();
-    const { packageName, versionId, checksum } = body;
+    const { packageName, versionId, checksum, makePublic } = body;
     if (!packageName || !versionId) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
 
     const pv = await prisma.packageVersion.findUnique({ where: { id: Number(versionId) }, include: { package: true } });
@@ -23,8 +23,20 @@ export async function POST(request: Request) {
     const pkg = pv.package;
     if (pkg.ownerId !== Number(payload.sub)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    // optionally verify checksum by fetching head from S3 (not implemented)
-    const updated = await prisma.packageVersion.update({ where: { id: pv.id }, data: { checksum: checksum || undefined, publishedAt: new Date() } });
+    // If checksum provided, verify object checksum
+    if (checksum) {
+      try {
+        const ok = await verifyObjectChecksum(pv.blobKey, checksum);
+        if (!ok) {
+          return NextResponse.json({ error: 'Checksum mismatch' }, { status: 400 });
+        }
+      } catch (err) {
+        console.error('Checksum verification failed', err);
+        return NextResponse.json({ error: 'Checksum verification failed' }, { status: 500 });
+      }
+    }
+
+    const updated = await prisma.packageVersion.update({ where: { id: pv.id }, data: { checksum: checksum || undefined, publishedAt: new Date(), isPublic: makePublic ? true : pv.isPublic } });
 
     const downloadUrl = await createPresignedDownload(pv.blobKey);
     return NextResponse.json({ success: true, downloadUrl, version: updated });
