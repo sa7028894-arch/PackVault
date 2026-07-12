@@ -1,56 +1,51 @@
 import React, { useEffect, useState } from 'react';
+import Layout from '../components/Layout';
 
-type Package = {
-  id: number;
-  name: string;
-  description?: string;
-  versions: { id: number; version: string; isPublic: boolean }[];
-};
+type Pkg = { id: number; name: string; description?: string; versions: { id: number; version: string; isPublic: boolean }[] };
 
 export default function PackagesPage() {
-  const [packages, setPackages] = useState<Package[]>([]);
+  const [q, setQ] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(10);
+  const [packages, setPackages] = useState<Pkg[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState('');
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch('/api/packages');
-        const data = await res.json();
-        setPackages(data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+    let mounted = true;
+    setLoading(true);
+    const url = `/api/packages/search?q=${encodeURIComponent(q)}&page=${page}&perPage=${perPage}`;
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!mounted) return;
+        setPackages(data.packages || []);
+        setTotal(data.total || 0);
+      })
+      .catch((e) => console.error(e))
+      .finally(() => mounted && setLoading(false));
+    return () => {
+      mounted = false;
+    };
+  }, [q, page, perPage]);
 
-  async function getDownload(pkgName: string, ver: string, isPublic: boolean) {
-    try {
-      const headers: any = {};
-      if (!isPublic && token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch(`/api/download?name=${encodeURIComponent(pkgName)}&version=${encodeURIComponent(ver)}`, { headers });
-      const data = await res.json();
-      if (data.downloadUrl) {
-        window.open(data.downloadUrl, '_blank');
-      } else {
-        alert('Failed to get download URL: ' + JSON.stringify(data));
-      }
-    } catch (err) {
-      alert('Error: ' + String(err));
-    }
-  }
+  const pages = Math.max(1, Math.ceil(total / perPage));
 
   return (
-    <main style={{ padding: 20 }}>
+    <Layout>
       <h1>Packages</h1>
-      <p>Enter your Bearer token below to download private package versions.</p>
-      <input placeholder="Bearer token" value={token} onChange={(e) => setToken(e.target.value)} style={{ width: '100%', marginBottom: 12 }} />
+
+      <div style={{ marginBottom: 12 }}>
+        <input
+          placeholder="Search packages"
+          value={q}
+          onChange={(e) => { setQ(e.target.value); setPage(1); }}
+          style={{ width: '60%', padding: '8px 10px' }}
+        />
+      </div>
 
       {loading ? (
-        <p>Loading packages...</p>
+        <p>Loading...</p>
       ) : (
         <div style={{ display: 'grid', gap: 12 }}>
           {packages.map((p) => (
@@ -59,15 +54,23 @@ export default function PackagesPage() {
               <p style={{ marginTop: 6 }}>{p.description}</p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
                 {p.versions.map((v) => (
-                  <button key={v.id} onClick={() => getDownload(p.name, v.version, v.isPublic)} style={{ padding: '6px 10px' }}>
-                    Download {v.version} {v.isPublic ? '(public)' : ''}
-                  </button>
+                  <a key={v.id} href={`/packages/${encodeURIComponent(p.name)}`}>
+                    <button style={{ padding: '6px 10px', marginRight: 6 }}>
+                      View {v.version} {v.isPublic ? '(public)' : ''}
+                    </button>
+                  </a>
                 ))}
               </div>
             </div>
           ))}
+
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1}>Prev</button>
+            <span>Page {page} / {pages}</span>
+            <button onClick={() => setPage(Math.min(pages, page + 1))} disabled={page >= pages}>Next</button>
+          </div>
         </div>
       )}
-    </main>
+    </Layout>
   );
 }
