@@ -4,6 +4,13 @@ import { prisma } from '../../lib/prisma';
 import { createPresignedUpload } from '../../lib/s3';
 import { checkRateLimit } from '../../lib/rateLimiter';
 
+async function rateLimit(key: string, limit = 60, windowSec = 60) {
+  const now = Math.floor(Date.now() / 1000);
+  const res = await (global as any).redis?.multi().incr(key).expire(key, windowSec).exec();
+  const count = res && res[0] && res[0][1] ? Number(res[0][1]) : 0;
+  return count <= limit;
+}
+
 function getClientIP(request: Request) {
   const xf = request.headers.get('x-forwarded-for');
   if (xf) return xf.split(',')[0].trim();
@@ -20,6 +27,10 @@ export async function POST(request: Request) {
 
     const ip = getClientIP(request);
     const userId = String(payload.sub);
+
+    // enforce email verification before allowing presign
+    const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
+    if (!user || !user.emailVerified) return NextResponse.json({ error: 'Email not verified' }, { status: 403 });
 
     // Configurable limits: example 60 reqs per minute per user, fallback 30 reqs per minute per IP
     const perUser = await checkRateLimit({ prefix: 'presign', limit: 60, windowSec: 60, userId, ip });
