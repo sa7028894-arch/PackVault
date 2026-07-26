@@ -1,4 +1,3 @@
-Markdown
 # PackVault
 
 Offline-first package caching and distribution CLI for JavaScript and TypeScript developers.
@@ -20,49 +19,49 @@ PackVault is an offline-first package caching and distribution library for JavaS
 
 ### JSR installation
 You can install PackVault programmatically using JSR:
-```bash
 npx jsr add @shoaib/packvault
+
 For Deno:
-
-Bash
 deno add jsr:@shoaib/packvault
-npm installation
-Bash
-npm install -g packvault
-Quick Start
-Cache Packages While Online
-Bash
-packvault sync react vite tailwindcss
-Or sync directly from a lockfile:
 
-Bash
+### npm installation
+npm install -g packvault
+
+## Quick Start
+
+### Cache Packages While Online
+packvault sync react vite tailwindcss
+
+Or sync directly from a lockfile:
 packvault sync --from-lockfile
-Go Offline
+
+### Go Offline
 Disconnect from the internet.
 
-Install From Cache
-Bash
+### Install From Cache
 packvault install react
-CLI Usage
-Sync
-Bash
+
+## CLI Usage
+
+### Sync
 packvault sync react vite tailwindcss
 packvault sync --from-lockfile
 packvault sync --concurrency 10
-Install
-Bash
+
+### Install
 packvault install react
 packvault install vite
-Bundle
-Bash
+
+### Bundle
 packvault bundle save my-stack react vite tailwindcss
 packvault bundle list
-Search
-Bash
+
+### Search
 packvault search react
-API Examples
-Caching Packages Programmatically
-TypeScript
+
+## API Examples
+
+### Caching Packages Programmatically
 import { CacheManager } from "@shoaib/packvault";
 
 async function cachePackages() {
@@ -74,8 +73,8 @@ async function cachePackages() {
 }
 
 cachePackages();
-Offline Installation
-TypeScript
+
+### Offline Installation
 import { PackageManager } from "@shoaib/packvault";
 
 async function runOffline() {
@@ -85,19 +84,20 @@ async function runOffline() {
 }
 
 runOffline();
-Configuration
+
+## Configuration
+
 The default configuration is stored in ~/.packvault/config.json. You can modify it or use environment variables to adjust cache paths, registry URLs, and peer-to-peer settings.
 
 Example:
-
-JSON
 {
   "cacheDirectory": "~/.packvault/cache",
-  "registry": "[https://registry.npmjs.org/](https://registry.npmjs.org/)",
+  "registry": "https://registry.npmjs.org/",
   "p2pPort": 8000
 }
-Architecture
-Plaintext
+
+## Architecture
+
 npm Registry
       │
       ▼
@@ -113,59 +113,46 @@ Install   Sharing
            │
            ▼
       Peer Sync
+
 The core components include:
+* **CacheManager**: Handles metadata and tarball caching.
+* **PackageManager**: Orchestrates installations.
+* **PeerManager**: Discovers and syncs with peers via mDNS.
+* **LocalRegistryServer**: Exposes the local cache as a standard npm registry.
 
-CacheManager: Handles metadata and tarball caching.
+## Examples
 
-PackageManager: Orchestrates installations.
-
-PeerManager: Discovers and syncs with peers via mDNS.
-
-LocalRegistryServer: Exposes the local cache as a standard npm registry.
-
-Examples
 We provide several executable examples in the examples/ directory:
 
-basic.ts - Basic package resolution.
+* [basic.ts](./examples/basic.ts) - Basic package resolution.
+* [cache.ts](./examples/cache.ts) - Sync and caching workflow.
+* [offline.ts](./examples/offline.ts) - Demonstrates offline installation fallback.
+* [sync.ts](./examples/sync.ts) - Peer-to-peer LAN syncing.
+* [template.ts](./examples/template.ts) - Offline template scaffolding.
 
-cache.ts - Sync and caching workflow.
+## FAQ
 
-offline.ts - Demonstrates offline installation fallback.
+* **Q: Does PackVault replace npm or Yarn?**  
+  A: No, it works alongside them. It acts as a smart cache and offline registry proxy.
+* **Q: Can I use it in CI environments?**  
+  A: Yes! You can point PackVault to a shared cache directory to drastically speed up CI times.
+* **Q: Is it compatible with Deno and Bun?**  
+  A: Yes, PackVault's core APIs and CLI are designed to be runtime agnostic where possible.
 
-sync.ts - Peer-to-peer LAN syncing.
+## Contributing
 
-template.ts - Offline template scaffolding.
-
-FAQ
-Q: Does PackVault replace npm or Yarn?
-
-A: No, it works alongside them. It acts as a smart cache and offline registry proxy.
-
-Q: Can I use it in CI environments?
-
-A: Yes! You can point PackVault to a shared cache directory to drastically speed up CI times.
-
-Q: Is it compatible with Deno and Bun?
-
-A: Yes, PackVault's core APIs and CLI are designed to be runtime agnostic where possible.
-
-Contributing
 We welcome contributions from developers of all levels. Please check our GitHub Issues and read the CONTRIBUTING.md guidelines.
 
-License
+## License
+
 MIT — See LICENSE
 
-Roadmap
-[x] Core offline caching
+## Roadmap
 
-[x] Lockfile sync
-
-[x] Integrity verification
-
-[x] Project templates
-
-[x] LAN package sharing (mDNS)
-
-[ ] Classroom mode
-
-[ ] Web dashboard
+- [x] Core offline caching
+- [x] Lockfile sync
+- [x] Integrity verification
+- [x] Project templates
+- [x] LAN package sharing (mDNS)
+- [ ] Classroom mode
+- [ ] Web dashboard
