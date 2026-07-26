@@ -1,70 +1,171 @@
-# Getting Started with Create React App
+Markdown
+# PackVault
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Offline-first package caching and distribution CLI for JavaScript and TypeScript developers.
 
-## Available Scripts
+Built by Omnikon — Developer tools for the next generation.  
+🌐 Website: https://pack-vault-website.vercel.app/
 
-In the project directory, you can run:
+PackVault is an offline-first package caching and distribution library for JavaScript developers. Download package tarballs while online, install them later without internet access, share them across your LAN, and bootstrap entire projects from a local package vault.
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+* ⭐ **Offline-first**: Cache packages online, use them completely offline.
+* 🌐 **LAN package sharing**: Share packages over the local network via mDNS.
+* 📦 **Project templates**: Bootstrap projects with dependencies completely offline.
+* 🔒 **Integrity verification**: Ensures SHA-512 and shasum consistency.
+* ⚡ **Peer-to-peer package sync**: P2P synchronization with authorization tokens.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation
 
-### `npm test`
+### JSR installation
+You can install PackVault programmatically using JSR:
+```bash
+npx jsr add @omnikon-org/packvault
+For Deno:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Bash
+deno add jsr:@omnikon-org/packvault
+npm installation
+Bash
+npm install -g packvault
+Quick Start
+Cache Packages While Online
+Bash
+packvault sync react vite tailwindcss
+Or sync directly from a lockfile:
 
-### `npm run build`
+Bash
+packvault sync --from-lockfile
+Go Offline
+Disconnect from the internet.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Install From Cache
+Bash
+packvault install react
+CLI Usage
+Sync
+Bash
+packvault sync react vite tailwindcss
+packvault sync --from-lockfile
+packvault sync --concurrency 10
+Install
+Bash
+packvault install react
+packvault install vite
+Bundle
+Bash
+packvault bundle save my-stack react vite tailwindcss
+packvault bundle list
+Search
+Bash
+packvault search react
+API Examples
+Caching Packages Programmatically
+TypeScript
+import { CacheManager } from "@omnikon-org/packvault";
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+async function cachePackages() {
+  const cache = new CacheManager();
+  await cache.syncPackages(["vite", "typescript"]);
+  
+  const pkgPath = await cache.getPackagePath("vite", "latest");
+  console.log("Vite is cached at:", pkgPath);
+}
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+cachePackages();
+Offline Installation
+TypeScript
+import { PackageManager } from "@omnikon-org/packvault";
 
-### `npm run eject`
+async function runOffline() {
+  const manager = new PackageManager();
+  const pkg = await manager.installOffline("react", "^18.0.0");
+  console.log("Offline installation successful!", pkg);
+}
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+runOffline();
+Configuration
+The default configuration is stored in ~/.packvault/config.json. You can modify it or use environment variables to adjust cache paths, registry URLs, and peer-to-peer settings.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Example:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+JSON
+{
+  "cacheDirectory": "~/.packvault/cache",
+  "registry": "[https://registry.npmjs.org/](https://registry.npmjs.org/)",
+  "p2pPort": 8000
+}
+Architecture
+Plaintext
+npm Registry
+      │
+      ▼
+  PackVault Sync
+      │
+      ▼
+   Local Vault
+      │
+ ┌────┴────┐
+ ▼         ▼
+Offline   LAN
+Install   Sharing
+           │
+           ▼
+      Peer Sync
+The core components include:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+CacheManager: Handles metadata and tarball caching.
 
-## Learn More
+PackageManager: Orchestrates installations.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+PeerManager: Discovers and syncs with peers via mDNS.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+LocalRegistryServer: Exposes the local cache as a standard npm registry.
 
-### Code Splitting
+Examples
+We provide several executable examples in the examples/ directory:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+basic.ts - Basic package resolution.
 
-### Analyzing the Bundle Size
+cache.ts - Sync and caching workflow.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+offline.ts - Demonstrates offline installation fallback.
 
-### Making a Progressive Web App
+sync.ts - Peer-to-peer LAN syncing.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+template.ts - Offline template scaffolding.
 
-### Advanced Configuration
+FAQ
+Q: Does PackVault replace npm or Yarn?
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+A: No, it works alongside them. It acts as a smart cache and offline registry proxy.
 
-### Deployment
+Q: Can I use it in CI environments?
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+A: Yes! You can point PackVault to a shared cache directory to drastically speed up CI times.
 
-### `npm run build` fails to minify
+Q: Is it compatible with Deno and Bun?
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+A: Yes, PackVault's core APIs and CLI are designed to be runtime agnostic where possible.
+
+Contributing
+We welcome contributions from developers of all levels. Please check our GitHub Issues and read the CONTRIBUTING.md guidelines.
+
+License
+MIT — See LICENSE
+
+Roadmap
+[x] Core offline caching
+
+[x] Lockfile sync
+
+[x] Integrity verification
+
+[x] Project templates
+
+[x] LAN package sharing (mDNS)
+
+[ ] Classroom mode
+
+[ ] Web dashboard
