@@ -3,7 +3,7 @@ Markdown
 
 Offline-first package caching and distribution CLI for JavaScript and TypeScript developers.
 
-Built by Omnikon — Developer tools for the next generation.  
+Built by Shoaib — Developer tools for the next generation.  
 🌐 Website: https://pack-vault-website.vercel.app/
 
 PackVault is an offline-first package caching and distribution library for JavaScript developers. Download package tarballs while online, install them later without internet access, share them across your LAN, and bootstrap entire projects from a local package vault.
@@ -21,11 +21,11 @@ PackVault is an offline-first package caching and distribution library for JavaS
 ### JSR installation
 You can install PackVault programmatically using JSR:
 ```bash
-npx jsr add @omnikon-org/packvault
+npx jsr add @shoaib/packvault
 For Deno:
 
 Bash
-deno add jsr:@omnikon-org/packvault
+deno add jsr:@shoaib/packvault
 npm installation
 Bash
 npm install -g packvault
@@ -63,7 +63,7 @@ packvault search react
 API Examples
 Caching Packages Programmatically
 TypeScript
-import { CacheManager } from "@omnikon-org/packvault";
+import { CacheManager } from "@shoaib/packvault";
 
 async function cachePackages() {
   const cache = new CacheManager();
@@ -76,7 +76,7 @@ async function cachePackages() {
 cachePackages();
 Offline Installation
 TypeScript
-import { PackageManager } from "@omnikon-org/packvault";
+import { PackageManager } from "@shoaib/packvault";
 
 async function runOffline() {
   const manager = new PackageManager();
